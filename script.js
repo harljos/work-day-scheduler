@@ -1,23 +1,50 @@
-// Wrap all code that interacts with the DOM in a call to jQuery to ensure that
-// the code isn't run until the browser has finished rendering all the elements
-// in the html.
 $(function () {
-  // TODO: Add a listener for click events on the save button. This code should
-  // use the id in the containing time-block as a key to save the user input in
-  // local storage. HINT: What does `this` reference in the click listener
-  // function? How can DOM traversal be used to get the "hour-x" id of the
-  // time-block containing the button that was clicked? How might the id be
-  // useful when saving the description in local storage?
-  //
-  // TODO: Add code to apply the past, present, or future class to each time
-  // block by comparing the id to the current hour. HINTS: How can the id
-  // attribute of each time-block be used to conditionally add or remove the
-  // past, present, and future classes? How can Day.js be used to get the
-  // current hour in 24-hour time?
-  //
-  // TODO: Add code to get any user input that was saved in localStorage and set
-  // the values of the corresponding textarea elements. HINT: How can the id
-  // attribute of each time-block be used to do this?
-  //
-  // TODO: Add code to display the current date in the header of the page.
+  
+  var tasks = [];
+
+  // when the save button is clicked puts the id of the div that is clicked and the text that was entered in the div
+  // and saves it to local storage
+  $(".time-block").on("click", ".saveBtn", function () {
+    var text = $(this).parent().children("textarea").val();
+    
+    var task = {
+      time: $(this).parent().attr("id"),
+      taskText: text,
+    };
+    tasks.push(task);
+    
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  });
+  
+  // updates the time block divs with the past, presenent, future styles depeding on the time of day
+  var hour = dayjs().format("H");
+  
+  for (var i = 0; i < 9; i++) {
+    var divEl = $("#hour-" + (i + 9));
+    
+    if (i + 9 == hour) {
+      divEl.attr("class", "row time-block present");
+    }
+    else if (i + 9 < hour) {
+      divEl.attr("class", "row time-block past");
+    }
+    else {
+      divEl.attr("class", "row time-block future");
+    }
+  }
+  
+  
+  // renders the tasks that were saved in local storage onto the page
+  var storedTasks = JSON.parse(localStorage.getItem("tasks"));
+  for (var i = 0; i < storedTasks.length; i++) { 
+    var timeBlock = storedTasks[i].time;
+    var textContent = storedTasks[i].taskText;
+    
+    $("#" + timeBlock).children("textarea").text(textContent);
+  }
+  
+  // displays the current date at the top of the page
+  var currentDate = dayjs().format("MMM D, YYYY");
+  var date = $("#currentDay");
+  date.text(currentDate);
 });
